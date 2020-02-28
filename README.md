@@ -4,3 +4,5 @@ Inspired by this article of deepmind, we want to try to train an agent to genera
 ## Setup
 Make sure to have python and conda installed, then source the setup.sh script:
 `source setup.sh`
+
+Then start jupyter `jupyter notebook`
