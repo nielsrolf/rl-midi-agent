@@ -46,3 +46,8 @@ def generate_random_midi(seq, num_events=4000, seconds=300):
     # Done!
     # Done!
     return rand
+
+
+def resemble_midi(real_midi, mapper):
+    real_seq = mapper.midi2vec(real_midi)
+    return generate_random_midi(real_seq, len(real_seq), real_midi.get_end_time())

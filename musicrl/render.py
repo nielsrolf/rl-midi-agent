@@ -1,6 +1,8 @@
 from IPython.display import display, Audio
 import soundfile as sf
 import librosa
+import librosa.display
+import pretty_midi
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -35,3 +37,9 @@ def plot_spectro(sample_mel, title):
     plt.figure(figsize=(25, 8))
     plt.title(title)
     return plt.imshow(sample_mel[:,::20])
+
+def plot_piano_roll(pm, start_pitch=56, end_pitch=70, fs=100):
+    # Use librosa's specshow function for displaying the piano roll
+    librosa.display.specshow(pm.get_piano_roll(fs)[start_pitch:end_pitch],
+                             hop_length=1, sr=fs, x_axis='time', y_axis='cqt_note',
+                             fmin=pretty_midi.note_number_to_hz(start_pitch))
