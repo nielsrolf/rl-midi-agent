@@ -44,6 +44,7 @@ def make_preprocessor(mapper):
             np.array of shape (#time, #frequencies) of mel spectrograms
         """
         return mapper.midi2vec(midi)
+    return preprocess
 
 
 def plot_history(history):
