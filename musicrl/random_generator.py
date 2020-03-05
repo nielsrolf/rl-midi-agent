@@ -30,20 +30,23 @@ def generate_random_midi(seq, num_events=4000, seconds=300):
         np.diag(seq_notes[:,2:5].std(axis=0)),
         size=len(rand_notes))
     rand_notes[:,4] = np.max(rand_notes[:,4], 0)
+    # copy back
+    rand[rand[:,1]==1] = rand_notes
+
     # events: value, one hot encodings for number
     # it doesn't really make sense to use normal distributed values for one hot
     # encoding - it should be a distribution where p(rand_one_hot.argmax()) is distributed
     # like p(rand_one_hot.argmax()), but it doesn't really matter
-    rand_cc[:,5:] = np.random.multivariate_normal(
-        seq_cc[:,5:].mean(axis=0),
-        np.diag(seq_cc[:,5:].std(axis=0)),
-        size=len(rand_cc))
-    # copy back
-    rand[rand[:,1]==1] = rand_notes
-    rand[rand[:,1]==0] = rand_cc
+    if len(rand_cc) > 0:
+        rand_cc[:,5:] = np.random.multivariate_normal(
+            seq_cc[:,5:].mean(axis=0),
+            np.diag(seq_cc[:,5:].std(axis=0)),
+            size=len(rand_cc))
+        rand[rand[:,1]==0] = rand_cc
+    # There are no control change events
+    
     # columns 2-5 are 7bit ints
     rand[:,[2,3,5]] = np.clip(rand[:,[2,3,5]], 0, 127).astype(int)
-    # Done!
     # Done!
     return rand
 
