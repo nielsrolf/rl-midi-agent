@@ -143,3 +143,4 @@ dmypy.json
 random_sounds.wav
 .DS_Store
 .vscode
+test_*.png

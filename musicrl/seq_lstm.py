@@ -11,8 +11,8 @@ from musicrl.render import midi2mel
 
 def get_model():
     model = Sequential()
-    model.add(LSTM(9,
-            input_shape=(None, 128),
+    model.add(LSTM(128,
+            input_shape=(None, 8),
             return_sequences=True)) # 
     model.add(TimeDistributed(Dense(128, activation='sigmoid')))
     model.add(TimeDistributed(Dense(1, activation='sigmoid')))
@@ -59,5 +59,4 @@ def plot_history(history):
     plt.plot(history.history['val_binary_accuracy'], label='Train')
     plt.plot(history.history['binary_accuracy'], label='Test')
     plt.legend()
-    plt.show()
 

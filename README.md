@@ -7,6 +7,9 @@ Make sure to have python and conda installed, then source the setup.sh script:
 
 Then start jupyter `jupyter notebook`
 
+## Running tests
+Either run one of the test files in `musicrl/tests/` or `py.test musicrl`.
+
 ## Naming convention
 
 Let's use a naming schema that works like this:
