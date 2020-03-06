@@ -37,20 +37,23 @@ class RandomMidiDataGenerator():
         self.epochs = 0
         self.steps_per_epoch = len(self.real_midis)//(batch_size//2)
 
+    def compute_batch(self):
+        if self.idx + self.batch_size//2 >= len(self.real_midis):
+            self.idx = 0
+            shuffle(self.real_midis)
+            self.epochs += 1
+        real_midis = self.real_midis[self.idx:self.idx+self.batch_size//2]
+        real_preprocessed = [self.preprocess(midi) for midi in real_midis]
+        fake_preprocessed = [self.preprocess(self.mapper.vec2midi(resemble_midi(midi, self.mapper))) for midi in real_midis]
+        min_length = min([mel.shape[0] for mel in real_preprocessed+fake_preprocessed])
+        min_length = min(min_length, self.max_num_timeframes)
+        x = np.array([mel[:min_length] for mel in real_preprocessed+fake_preprocessed])
+        y = np.array([REAL]*(self.batch_size//2) + [GEN]*(self.batch_size//2)).reshape((-1, 1))
+        self.idx += self.batch_size//2
+        return x, y
+
     def __call__(self):
         while True:
-            if self.idx + self.batch_size//2 >= len(self.real_midis):
-                self.idx = 0
-                shuffle(self.real_midis)
-                self.epochs += 1
-            real_midis = self.real_midis[self.idx:self.idx+self.batch_size//2]
-            real_preprocessed = [self.preprocess(midi) for midi in real_midis]
-            fake_preprocessed = [self.preprocess(self.mapper.vec2midi(resemble_midi(midi, self.mapper))) for midi in real_midis]
-            min_length = min([mel.shape[0] for mel in real_preprocessed+fake_preprocessed])
-            min_length = min(min_length, self.max_num_timeframes)
-            x = [mel[:min_length] for mel in real_preprocessed+fake_preprocessed]
-            y = np.array([REAL]*(self.batch_size//2) + [GEN]*(self.batch_size//2)).reshape((-1, 1))
-            self.idx += self.batch_size
-            yield np.array(x), y
+            yield self.compute_batch()
 
             
