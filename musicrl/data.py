@@ -37,6 +37,42 @@ class RandomMidiDataGenerator():
         self.epochs = 0
         self.steps_per_epoch = len(self.real_midis)//(batch_size//2)
 
+    def compute_batch_of_reals(self, batch_size):
+        """Compute a batch of real samples, without changing the index counter
+        Not intended for use in training
+
+        Gets:
+            batch_size: int
+        Returns:
+            x: np.array of shape (batch_size, *self.preprocess().shape)
+            y: np.array of (batch_size, 1)
+        """
+        real_midis = np.random.choice(self.real_midis, size=batch_size, replace=False)
+        real_preprocessed = [self.preprocess(midi) for midi in real_midis]
+        min_length = min([mel.shape[0] for mel in real_preprocessed])
+        min_length = min(min_length, self.max_num_timeframes)
+        x = np.array([mel[:min_length] for mel in real_preprocessed])
+        y = np.array([REAL]*(self.batch_size) )
+        return x, y
+
+    def compute_batch_of_generated(self, batch_size):
+        """Compute a batch of generated samples, without changing the index counter
+        Not intended for use in training
+
+        Gets:
+            batch_size: int
+        Returns:
+            x: np.array of shape (batch_size, *self.preprocess().shape)
+            y: np.array of (batch_size, 1)
+        """
+        real_midis = np.random.choice(self.real_midis, size=batch_size, replace=False)
+        fake_preprocessed = [self.preprocess(self.mapper.vec2midi(resemble_midi(midi, self.mapper))) for midi in real_midis]
+        min_length = min([mel.shape[0] for mel in fake_preprocessed])
+        min_length = min(min_length, self.max_num_timeframes)
+        x = np.array([mel[:min_length] for mel in fake_preprocessed])
+        y = np.array([GEN]*(self.batch_size)).reshape((-1, 1))
+        return x, y
+
     def compute_batch(self):
         if self.idx + self.batch_size//2 >= len(self.real_midis):
             self.idx = 0

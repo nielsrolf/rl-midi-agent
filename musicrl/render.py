@@ -43,3 +43,26 @@ def plot_piano_roll(pm, start_pitch=56, end_pitch=70, fs=100):
     librosa.display.specshow(pm.get_piano_roll(fs)[start_pitch:end_pitch],
                              hop_length=1, sr=fs, x_axis='time', y_axis='cqt_note',
                              fmin=pretty_midi.note_number_to_hz(start_pitch))
+
+
+def plot_predictions_over_time(model, reals, generateds):
+    plt.figure(figsize=(18, 9))
+
+    plt.subplot(121)
+    pred_reals = model.predict(reals)[:2340,:,0]
+    for pred_real in pred_reals:
+        label = "Real" if i == 0 else None
+        plt.plot(pred_real, color='blue', linewidth=0.5, alpha=0.5)
+
+    pred_rands = model.predict(generateds)[:2340,:,0]
+    for pred_rand in pred_rands:
+        plt.plot(pred_rand, color='green', linewidth=0.5, alpha=0.5)
+
+    plt.plot(0*pred_real+0.5, linewidth=3)
+    plt.legend()
+
+    plt.subplot(122)
+    plt.hist(pred_reals.mean(0), label="Real", color="blue", orientation="horizontal", alpha=0.5)
+    plt.hist(pred_rands.mean(0), label="Generated", color="green", orientation="horizontal", alpha=0.5)
+    plt.legend()
+    plt.show()
