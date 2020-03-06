@@ -20,3 +20,18 @@ And for collections, we use `rand_midis`, `rand_seqs`, `rand_wavs` and `rand_mel
 For non generated sequences, let's use `real_...`.
 
 For predictions on `something_mel`, we use `pred_something` and for labels, we use `y_something`.
+
+## Developer notes
+
+When this error occurs:
+```
+...
+  File "/Users/nielswarncke/opt/anaconda3/envs/midi-rl/lib/python3.6/site-packages/pretty_midi/instrument.py", line 334, in synthesize
+    fade_out = np.linspace(1, 0, .1*fs)
+  File "<__array_function__ internals>", line 6, in linspace
+  File "/Users/nielswarncke/opt/anaconda3/envs/midi-rl/lib/python3.6/site-packages/numpy/core/function_base.py", line 121, in linspace
+    .format(type(num)))
+TypeError: object of type <class 'float'> cannot be safely interpreted as an integer.
+```
+
+You have to modify `anaconda3/envs/midi-rl/lib/python3.6/site-packages/pretty_midi/instrument.py line 334` from `fade_out = np.linspace(1, 0, .1*fs)` to `fade_out = np.linspace(1, 0, fs//10)`
