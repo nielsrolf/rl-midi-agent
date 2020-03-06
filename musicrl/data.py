@@ -23,14 +23,19 @@ class RandomMidiDataGenerator():
         preprocess: (pretty_midi.PrettyMidi) -> model input
         mapper: midi2vec.MidiVectorMapper which shall be used by resemble_midi
         batch_size: int
+        max_num_timeframes: each batch is cut to at most this many timeframes. This can avoid memory issues,
+            which result in an error like this
+            `[1]    2097 bus error  /Users/nielswarncke/opt/anaconda3/envs/midi-rl/bin/python  --default --client`
     """
-    def __init__(self, real_midis, preprocess, mapper, batch_size):
+    def __init__(self, real_midis, preprocess, mapper, batch_size, max_num_timeframes=8000):
         self.real_midis = real_midis
         self.preprocess = preprocess
         self.batch_size = batch_size
         self.mapper = mapper
+        self.max_num_timeframes = max_num_timeframes
         self.idx = 0
         self.epochs = 0
+        self.steps_per_epoch = len(self.real_midis)//(batch_size//2)
 
     def __call__(self):
         while True:
@@ -42,7 +47,10 @@ class RandomMidiDataGenerator():
             real_preprocessed = [self.preprocess(midi) for midi in real_midis]
             fake_preprocessed = [self.preprocess(self.mapper.vec2midi(resemble_midi(midi, self.mapper))) for midi in real_midis]
             min_length = min([mel.shape[0] for mel in real_preprocessed+fake_preprocessed])
+            min_length = min(min_length, self.max_num_timeframes)
             x = [mel[:min_length] for mel in real_preprocessed+fake_preprocessed]
             y = np.array([REAL]*(self.batch_size//2) + [GEN]*(self.batch_size//2)).reshape((-1, 1))
             self.idx += self.batch_size
             yield np.array(x), y
+
+            
