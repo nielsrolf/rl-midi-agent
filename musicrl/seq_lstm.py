@@ -9,18 +9,15 @@ from tensorflow.keras import metrics
 from musicrl.render import midi2mel
 
 
-def get_model():
+def get_model(input_dims):
     model = Sequential()
     model.add(LSTM(128,
-            input_shape=(None, 8),
+            input_shape=(None, input_dims),
             return_sequences=True)) # 
     model.add(TimeDistributed(Dense(128, activation='sigmoid')))
     model.add(TimeDistributed(Dense(1, activation='sigmoid')))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[metrics.binary_accuracy])
     return model
-
-    print(model.inputs)
-    model.summary()
 
 
 """

@@ -26,24 +26,24 @@ class DiscriminatorTrainingWithGeneratorsTest(unittest.TestCase):
         """
         Test that a very short training runs without exceptions
         """
-        model = seq_lstm.get_model()
+        model = seq_lstm.get_model(mapper.dims)
         train_generator = RandomMidiDataGenerator(real_midis[::2], seq_lstm.make_preprocessor(mapper), mapper, 2, 100)
         test_generator = RandomMidiDataGenerator(real_midis[1::2], seq_lstm.make_preprocessor(mapper), mapper, 2, 100)
         self.train(model, train_generator, test_generator)
         plt.title("Seq LSTM, on generator - Accuracy")
         plt.savefig("test_seq_lstm_training_generator.png")
         
-#     def test_with_mel_lstm(self):
-#         """
-#         Test that a very short training runs without exceptions
-#         """
-#         model = mel_lstm.get_model()
-#         train_generator = RandomMidiDataGenerator(real_midis[::2], mel_lstm.preprocess, mapper, 2, 100)
-#         test_generator = RandomMidiDataGenerator(real_midis[1::2], mel_lstm.preprocess, mapper, 2, 100)
-#         test_data = test_generator.compute_batch()
-#         self.train(model, train_generator, test_generator)
-#         plt.title("Mel LSTM, on generator - Accuracy")
-#         plt.savefig("test_seq_lstm_training_generator.png")
+    # def test_with_mel_lstm(self):
+    #     """
+    #     Test that a very short training runs without exceptions
+    #     """
+    #     model = mel_lstm.get_model()
+    #     train_generator = RandomMidiDataGenerator(real_midis[::2], mel_lstm.preprocess, mapper, 2, 100)
+    #     test_generator = RandomMidiDataGenerator(real_midis[1::2], mel_lstm.preprocess, mapper, 2, 100)
+    #     test_data = test_generator.compute_batch()
+    #     self.train(model, train_generator, test_generator)
+    #     plt.title("Mel LSTM, on generator - Accuracy")
+    #     plt.savefig("test_seq_lstm_training_generator.png")
 
 class DiscriminatorTrainingWithPrecomputedData(unittest.TestCase):
     def train(self, model, train_generator, test_generator):
@@ -58,7 +58,7 @@ class DiscriminatorTrainingWithPrecomputedData(unittest.TestCase):
         """
         Test that a very short training runs without exceptions
         """
-        model = seq_lstm.get_model()
+        model = seq_lstm.get_model(mapper.dims)
         train_generator = RandomMidiDataGenerator(real_midis[::2], seq_lstm.make_preprocessor(mapper), mapper, 2, 100)
         test_generator = RandomMidiDataGenerator(real_midis[1::2], seq_lstm.make_preprocessor(mapper), mapper, 2, 100)
         self.train(model, train_generator, test_generator)
