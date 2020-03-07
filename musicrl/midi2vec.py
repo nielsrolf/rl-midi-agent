@@ -83,7 +83,7 @@ class MidiVectorMapper():
         song.instruments.append(piano)
         return song
 
-    def vec2note(self, event_vec):
+    def action2note(self, event_vec):
         """Map a single action of the generstor to a note
         """
         if event_vec[1] > 0.5:
