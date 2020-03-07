@@ -82,6 +82,24 @@ class MidiVectorMapper():
                 )
         song.instruments.append(piano)
         return song
+
+    def vec2note(self, event_vec):
+        """Map a single action of the generstor to a note
+        """
+        if event_vec[1] > 0.5:
+            return pretty_midi.Note(
+                start=event_vec[0],
+                pitch=int(event_vec[2]),
+                velocity=int(event_vec[3]),
+                end=event_vec[0]+event_vec[4]
+            )
+        else:
+            return pretty_midi.ControlChange(
+                time=event_vec[0],
+                value=int(event_vec[5]),
+                number=self.control_change_categories[np.argmax(event_vec[6:])]
+            )
+
     
 # mapper = MidiVectorMapper(samples)
 # seq = mapper.midi2vec(samples[0])
