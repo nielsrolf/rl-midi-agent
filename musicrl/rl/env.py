@@ -1,5 +1,6 @@
 ## Imports and data loading
 
+import pdb
 import sys
 sys.path.append("../../")
 
@@ -25,7 +26,7 @@ GEN = 0
 
 
 
-filepaths = list(glob('maestro-v2.0.0/2008/**.midi'))
+filepaths = list(glob('../../maestro-v2.0.0/2008/**.midi'))
 real_midis = [pretty_midi.PrettyMIDI(i) for i in filepaths]
 mapper = MidiVectorMapper(real_midis)
 
@@ -68,11 +69,13 @@ class MelEnvironment(gym.Env):
         self.current_seq.append(action)
         event = mapper.action2note(action)
         if isinstance(event, pretty_midi.Note):
+
             if len(self.current_midi.instruments[0].notes) == 1:
                 # It is the first note, so we synthesize
                 self.current_midi.instruments[0].notes.append(event)
                 self.current_midi.instruments[0].synthesize(self.fr)
             else:
+                pdb.set_trace()
                 self.current_midi.instruments[0].append_and_synthesize(event)
         return None
         return observation, reward, done, info
@@ -101,4 +104,4 @@ for action in notes:
     print(action)
     env.step(action)
 
-display(Audio(env.current_wav, rate=44100))
+#display(Audio(env.current_wav, rate=44100))
