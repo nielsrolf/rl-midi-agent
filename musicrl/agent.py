@@ -1,13 +1,13 @@
 from collections import deque
 import numpy as np
 
-from models import *
+from musicrl.models import *
 
 class DPPGAgent:
     def __init__(self, env, max_memory_size=50000):
         #Init Networks
-        self.actor = Actor()
         self.critic = Critic()
+        self.actor = Actor()
         self.actor_target = Actor()
         self.critic_target = Critic()
 
