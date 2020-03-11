@@ -6,7 +6,7 @@ from tensorflow.keras.layers import LSTM, Dense
 from tensorflow.keras.layers import TimeDistributed
 from tensorflow.keras import metrics
 
-from musicrl.render import midi2mel
+from musicrl.render import midi2mel, wav2mel
 
 
 def get_model():
@@ -18,9 +18,6 @@ def get_model():
     model.add(TimeDistributed(Dense(1, activation='sigmoid')))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[metrics.binary_accuracy])
     return model
-
-    print(model.inputs)
-    model.summary()
 
 
 """
@@ -37,6 +34,17 @@ def preprocess(midi):
         np.array of shape (#time, #frequencies) of mel spectrograms
     """
     return midi2mel(midi).T
+
+
+
+def preprocess_wav(wav, rate=44100):
+    """
+    Gets:
+        pretty_midi.PrettyMidi
+    Returns:
+        np.array of shape (#time, #frequencies) of mel spectrograms
+    """
+    return wav2mel(wav,  rate).T
 
 
 def plot_history(history):
