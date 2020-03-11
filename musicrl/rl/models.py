@@ -3,8 +3,8 @@ sys.path.append("../../")
 
 
 class Actor():
-    def __init__(self):
-        pass
+    def __init__(self, observation_shape):
+        return model
 
     def train(self, state, action):
         """
