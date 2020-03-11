@@ -28,6 +28,7 @@ for episode in range(50):
     state = env.reset()
     episode_reward = 0
     action = agent.get_action(state)
+    print(action)
     # todo: make action noisy?
     new_state, reward, done, info = env.step(action)
 

@@ -9,13 +9,27 @@ class DPPGAgent:
         self.actor = Actor()
         self.critic = Critic()
         self.actor_target = Actor()
-        self.actor_target = Critic()
+        self.critic_target = Critic()
 
         self.memory = Memory(max_memory_size)
 
     def get_action(self, state):
         action = self.actor.predict(state)
         return action
+
+    def update_models(self, states, actions, critic_target):
+        """ Update actor and critic networks from sampled experience
+        """
+        # Train critic
+        self.critic.train_on_batch(states, actions, critic_target)
+        # Q-Value Gradients under Current Policy
+        actions = self.actor.model.predict(states)
+        grads = self.critic.gradients(states, actions)
+        # Train actor
+        self.actor.train(states, actions, np.array(grads).reshape((-1, self.act_dim)))
+        # Transfer weights to target networks at rate Tau
+        self.actor.transfer_weights()
+        self.critic.transfer_weights()
 
 
 class Memory:

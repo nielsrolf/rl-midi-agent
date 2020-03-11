@@ -3,6 +3,18 @@ sys.path.append("../../")
 
 
 class Actor():
+
+
+    class LSTM():
+        def __init__(self):
+            pass
+
+        def train(self, state, action):
+            print("train lstm")
+
+
+
+
     def __init__(self):
         pass
 
