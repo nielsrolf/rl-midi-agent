@@ -13,6 +13,9 @@ The following components are needed:
 
 
 
-TODO:
-* sample randomly from experience replay to avoid temporally-correlated simulated trajectories and to reduce variance 
+Deep Deterministic Policy Gradients is a Policy Gradient Descent method that works for continous action spaces (here: seq vector). It includes
+an Actor and a Critic. The Actor predicts an action instead of an action probability. Both Actor and Critic contain a network and a target network
+that are time-delayed and improve stability. Besides a replay buffer from where experiences are sampled from.
+
+
 
