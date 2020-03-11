@@ -62,6 +62,8 @@ class MidiVectorMapper():
         """
         song = pretty_midi.PrettyMIDI(resolution=384, initial_tempo=300)
         piano = pretty_midi.Instrument(program=0)
+
+
         for event_vec in seq:
             if event_vec[1] > 0.5:
                 piano.notes.append(
@@ -86,6 +88,11 @@ class MidiVectorMapper():
     def action2note(self, event_vec):
         """Map a single action of the generstor to a note
         """
+
+        print("--")
+        print(event_vec)
+        print("--")
+
         if event_vec[1] > 0.5:
             return pretty_midi.Note(
                 start=event_vec[0],
