@@ -43,7 +43,7 @@ class MidiVectorMapper():
         seq = []
         for note in notes:
             position = int(note.start/self.time_per_tick)
-            while len(seq) < position - 1:
+            while len(seq) < position:
                 seq.append(self.no_sound)
             seq.append(np.array([1, note.pitch, note.velocity, note.end-note.start, 0]))
         return np.array(seq)
@@ -61,7 +61,47 @@ class MidiVectorMapper():
         else:
             return None
 
+
+class PostProcessor():
+    """Postprocess to make a generating function that produces values
+    around 0 makes some noise.
+    If the generators produce only silence in the initial state, there won't be
+    any useful gradients
     
+    Gets:
+        real_seqs: np.array, vectorized sequences of which to collect statistics
+    """
+    def __init__(self, real_seqs):
+        real_seqs = np.concatenate(real_seqs)
+        self.offset_0 = 0.4
+        self.mean_notes = real_seqs[(real_seqs[:,0]>0.5)].mean(axis=0, keepdims=True)[:,[1,2,3]]
+        
+    def __call__(self, pred):
+        pred = np.array(pred)
+        pred[:,0] += self.offset_0
+        pred[:,[1,2,3]] += self.mean_notes
+        return repair_generated_seq(pred)
+
+
+def generate_random_sequence(postprocess, num_events=15000):
+    """Generate some Gaussian noise, remove end tokens and postprocess it
+    to something playable.
+
+    Gets:
+        postprocess: function/callable
+            np.array predictions -> np.array of hopefully playable sequence
+        num_events: number of actions in the random sequence,
+            linear relationship with expected wav lemngth
+
+    Returns:
+        rand_seq: np.array, input for a corresponding MidiVectorMapper.vec2midi
+    """
+    noise = np.random.normal(0.2, 1, size=(num_events, 5))
+    noise[:,4] = 0 # remove any end token
+    rand_seq = postprocess(noise)
+    return rand_seq
+
+   
 # mapper = MidiVectorMapper(samples)
 # seq = mapper.midi2vec(samples[0])
 # reconstruction = mapper.vec2midi(seq)
