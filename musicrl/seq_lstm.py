@@ -1,4 +1,10 @@
 
+"""
+This model is currently not really used besides in the discriminator.ipynb
+for evaluation.
+"""
+
+
 from matplotlib import pyplot as plt
 
 from tensorflow.keras.models import Sequential
