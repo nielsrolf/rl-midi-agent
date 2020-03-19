@@ -3,9 +3,10 @@ import numpy as np
 
 from models import *
 
+
 class DPPGAgent:
     def __init__(self, env, max_memory_size=50000):
-        #Init Networks
+        # Init Networks
         self.actor = Actor()
         self.critic = Critic()
         self.actor_target = Actor()

@@ -12,8 +12,9 @@ class MidiVectorMapperTest(unittest.TestCase):
     Test if it is possible to convert a midi to a sequence and back to midi
     without changing how it sounds when synthezising.
     """
+
     def test_midi2vec2midi(self):
-        filepaths = list(glob('maestro-v2.0.0/2008/**.midi'))
+        filepaths = list(glob("maestro-v2.0.0/2008/**.midi"))
         real_midis = [pretty_midi.PrettyMIDI(filepaths[1])]
         real_midi = real_midis[0]
         mapper = MidiVectorMapper(real_midis)
@@ -23,7 +24,6 @@ class MidiVectorMapperTest(unittest.TestCase):
         reconstruction_wav = reconstruction_midi.synthesize(100)
         # TODO: check if all notes in the midi are similar
 
-    
+
 if __name__ == "__main__":
     unittest.main()
-        

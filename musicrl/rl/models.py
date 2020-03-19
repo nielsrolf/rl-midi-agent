@@ -1,8 +1,9 @@
 import sys
+
 sys.path.append("../../")
 
 
-class Actor():
+class Actor:
     def __init__(self, observation_shape):
         return model
 
@@ -22,11 +23,12 @@ class Actor():
         return
 
 
-
 """
 generate a temporal-difference (TD) error signal each time step
 """
-class Critic():
+
+
+class Critic:
     def __int__(self):
         pass
 

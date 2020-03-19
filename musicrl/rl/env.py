@@ -2,6 +2,7 @@
 
 import pdb
 import sys
+
 sys.path.append("../../")
 
 import numpy as np
@@ -25,8 +26,7 @@ REAL = 1
 GEN = 0
 
 
-
-filepaths = list(glob('../../maestro-v2.0.0/2008/**.midi'))
+filepaths = list(glob("../../maestro-v2.0.0/2008/**.midi"))
 real_midis = [pretty_midi.PrettyMIDI(i) for i in filepaths]
 mapper = MidiVectorMapper(real_midis)
 
@@ -90,7 +90,7 @@ class MelEnvironment(gym.Env):
     def current_wav(self):
         return self.current_midi.instruments[0].synthesized
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         pass
 
     def close(self):
@@ -104,4 +104,4 @@ for action in notes:
     print(action)
     env.step(action)
 
-#display(Audio(env.current_wav, rate=44100))
+# display(Audio(env.current_wav, rate=44100))
