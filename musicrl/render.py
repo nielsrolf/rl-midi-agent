@@ -64,7 +64,6 @@ def plot_predictions_over_time(model, reals, generateds):
     plt.subplot(121)
     pred_reals = model.predict(reals)[:2340, :, 0]
     for pred_real in pred_reals:
-        label = "Real" if i == 0 else None
         plt.plot(pred_real, color="blue", linewidth=0.5, alpha=0.5)
 
     pred_rands = model.predict(generateds)[:2340, :, 0]
