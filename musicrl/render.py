@@ -61,7 +61,7 @@ def plot_piano_roll(pm, start_pitch=56, end_pitch=70, fs=100):
 def plot_predictions_over_time(model, reals, generateds):
     plt.figure(figsize=(18, 9))
 
-    plt.subplot(121)
+    plt.subplot(121, ylim=(0, 1))
     pred_reals = model.predict(reals)[:2340, :, 0]
     for pred_real in pred_reals:
         plt.plot(pred_real, color="blue", linewidth=0.5, alpha=0.5)
@@ -73,7 +73,7 @@ def plot_predictions_over_time(model, reals, generateds):
     plt.plot(0 * pred_real + 0.5, linewidth=3)
     plt.legend()
 
-    plt.subplot(122)
+    plt.subplot(122, ylim=(0, 1))
     plt.hist(
         pred_reals.mean(0),
         label="Real",
