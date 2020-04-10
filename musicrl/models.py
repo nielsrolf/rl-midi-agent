@@ -21,20 +21,28 @@ from tensorflow.keras.layers import (
 
 # tf.disable_v2_behavior()
 
-
 class Actor:
     """ Actor Network for the DDPG Algorithm
     """
 
-    def __init__(self, inp_dim, out_dim, act_range, lr, tau):
+    def __init__(self, inp_dim, out_dim, act_range, lr, tau, critic):
         self.env_dim = inp_dim
         self.act_dim = out_dim
         self.act_range = act_range
         self.tau = tau
         self.lr = lr
-        self.model = self.network()
+        actor = self.network()
         self.target_model = self.network()
-        self.adam_optimizer = self.optimizer()
+        inp = Input((self.env_dim))
+        out = actor(inp)
+        q_estimates = critic([inp, out])
+        critic.trainable = False 
+        self.train_model = Model(inp, q_estimates)
+        self.predict_model = Model(inp, out)
+        def loss(dummy, q_estimates):
+            return -K.mean(q_estimates)
+        self.train_model.compile(Adam(lr), loss=loss)
+
 
     def network(self):
         """ Actor Network for Policy function Approximation, using a tanh
@@ -61,7 +69,7 @@ class Actor:
     def predict(self, states):
         """ Action prediction
         """
-        return self.model.predict(states)
+        return self.predict_model.predict(states)
 
     def target_predict(self, inp):
         """ Action prediction (target network)
@@ -71,36 +79,41 @@ class Actor:
     def transfer_weights(self):
         """ Transfer model weights to target model with a factor of Tau
         """
-        W, target_W = self.model.get_weights(), self.target_model.get_weights()
+        W, target_W = self.predict_model.get_weights(), self.target_model.get_weights()
         for i in range(len(W)):
             target_W[i] = self.tau * W[i] + (1 - self.tau) * target_W[i]
         self.target_model.set_weights(target_W)
 
-    def train(self, states, grads):
+    def train(self, states):
         """ Actor Training
         """
-        self.adam_optimizer([states, grads])
+        dummies = np.zeros((len(states), 1))
+        return self.train_model.train_on_batch(states, dummies)
 
-    def optimizer(self):
-        """ Actor Optimizer / basically optimize d_critic(actor(state)) / d_weights
-        """
-        action_gdts = K.placeholder(shape=(None, self.act_dim))
-        params_grad = tf.gradients(
-            self.model.output, self.model.trainable_weights, -action_gdts
-        )
-        grads = zip(params_grad, self.model.trainable_weights)
+    # def optimizer(self, g):
+    #     """ Actor Optimizer / basically optimize d_critic(actor(state)) / d_weights
+    #     """
+    #     action_gdts = K.placeholder(shape=(None, self.act_dim))
+    #     params_grad = g.gradient(
+    #         self.model.output, self.model.trainable_weights, -action_gdts
+    #     )
+    #     grads = zip(params_grad, self.model.trainable_weights)
 
-        return K.function(
-            inputs=[self.model.input, action_gdts],
-            outputs=[K.constant(1)],
-            updates=[Adam(self.lr).apply_gradients(grads)],
-        )
+    #     return K.function(
+    #         inputs=[self.model.input, action_gdts],
+    #         outputs=[K.constant(1)],
+    #         updates=[Adam(self.lr).apply_gradients(grads)],
+    #     )
 
     def save(self, path):
-        self.model.save_weights(path + "_actor.h5")
+        self.train_model.save_weights(path + "_actor.h5")
 
     def load_weights(self, path):
-        self.model.load_weights(path)
+        self.train_model.load_weights(path)
+        actual_tau = self.tau
+        self.tau = 1
+        self.transfer_weights()
+        self.tau = actual_tau
 
 
 """
@@ -122,11 +135,6 @@ class Critic:
         self.target_model = self.network()
         self.model.compile(Adam(self.lr), "mse")
         self.target_model.compile(Adam(self.lr), "mse")
-        # Function to compute Q-value gradients (Actor Optimization)
-        self.action_grads = K.function(
-            [self.model.input[0], self.model.input[1]],
-            K.gradients(self.model.output, [self.model.input[1]]),
-        )
 
     def network(self):
         """ Assemble Critic network to predict q-values
@@ -139,11 +147,6 @@ class Critic:
         out = Dense(1, activation="linear", kernel_initializer=RandomUniform())(x)
         return Model([state, action], out)
 
-    def gradients(self, states, actions):
-        """ Compute Q-value gradients w.r.t. states and policy-actions
-        """
-        return self.action_grads([states, actions])
-
     def target_predict(self, inp):
         """ Predict Q-Values using the target network
         """
@@ -152,7 +155,6 @@ class Critic:
     def train_on_batch(self, states, actions, critic_target):
         """ Train the critic network on batch of sampled experience
         """
-        import pdb; pdb.set_trace()
         return self.model.train_on_batch([states, actions], critic_target)
 
     def transfer_weights(self):

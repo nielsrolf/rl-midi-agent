@@ -28,13 +28,13 @@ class DDPG:
         self.gamma = gamma
         self.lr = lr
         # Create actor and critic networks
-        self.actor = Actor(self.env_dim, act_dim, act_range, 0.1 * lr, tau)
         self.critic = Critic(self.env_dim, act_dim, lr, tau)
+        self.actor = Actor(self.env_dim, act_dim, act_range, 0.1 * lr, tau, critic=self.critic.model)
 
     def policy_action(self, s):
         """ Use the actor to predict value
         """
-        return self.actor.predict(s)
+        return self.actor.predict(s) # NOTE removed [0]
 
     def bellman(self, rewards, q_values, dones):
         """ Use the Bellman Equation to compute the critic target
@@ -53,10 +53,9 @@ class DDPG:
         # Train critic
         self.critic.train_on_batch(states, actions, critic_target)
         # Q-Value Gradients under Current Policy
-        actions = self.actor.model.predict(states)
-        grads = self.critic.gradients(states, actions)
+        actions = self.actor.predict(states)
         # Train actor
-        self.actor.train(states, np.array(grads).reshape((-1, self.act_dim)))
+        self.actor.train(states)
         # Transfer weights to target networks at rate Tau
         self.actor.transfer_weights()
         self.critic.transfer_weights()
