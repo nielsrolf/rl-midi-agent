@@ -1,16 +1,3 @@
-import tensorflow.keras.backend as K
-import tensorflow as tf
-from tensorflow.keras.layers import (
-    Input,
-    Dense,
-    Reshape,
-    LSTM,
-    Lambda,
-    BatchNormalization,
-    GaussianNoise,
-    Flatten,
-)
-
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras.backend as K
@@ -26,19 +13,13 @@ from tensorflow.keras.layers import (
     Reshape,
     BatchNormalization,
     Lambda,
+    GaussianNoise,
     Flatten,
 )
 
+# import tensorflow.compat.v1 as tf
 
-import sys
-import numpy as np
-
-sys.path.append("../../")
-
-
-import tensorflow.compat.v1 as tf
-
-tf.disable_v2_behavior()
+# tf.disable_v2_behavior()
 
 
 class Actor:
@@ -69,7 +50,7 @@ class Actor:
         x = Flatten()(x)
         x = Dense(128, activation="relu")(x)
         x = GaussianNoise(1.0)(x)
-        #
+        # NOTE: maybe exchange with linear layer without tanh
         out = Dense(
             self.act_dim, activation="tanh", kernel_initializer=RandomUniform()
         )(x)
@@ -77,13 +58,10 @@ class Actor:
         #
         return Model(inp, out)
 
-    def predict(self, state):
+    def predict(self, states):
         """ Action prediction
         """
-        ptin("aa")
-
-        print(state.shape)
-        return self.model.predict(state)
+        return self.model.predict(states)
 
     def target_predict(self, inp):
         """ Action prediction (target network)
@@ -98,13 +76,13 @@ class Actor:
             target_W[i] = self.tau * W[i] + (1 - self.tau) * target_W[i]
         self.target_model.set_weights(target_W)
 
-    def train(self, states, actions, grads):
+    def train(self, states, grads):
         """ Actor Training
         """
         self.adam_optimizer([states, grads])
 
     def optimizer(self):
-        """ Actor Optimizer
+        """ Actor Optimizer / basically optimize d_critic(actor(state)) / d_weights
         """
         action_gdts = K.placeholder(shape=(None, self.act_dim))
         params_grad = tf.gradients(
@@ -112,24 +90,11 @@ class Actor:
         )
         grads = zip(params_grad, self.model.trainable_weights)
 
-        print("++")
-        print(action_gdts.shape)
-        print(len(params_grad))
-        print(grads)
-
-        print("++")
-        print("++")
-
         return K.function(
             inputs=[self.model.input, action_gdts],
             outputs=[K.constant(1)],
-            updates=[tf.train.AdamOptimizer(self.lr).apply_gradients(grads)],
+            updates=[Adam(self.lr).apply_gradients(grads)],
         )
-
-        # return K.function(inputs=[self.model.input, action_gdts], outputs=[],   updates=[tf.train.AdamOptimizer(self.lr).apply_gradients(grads)][1:])
-        # return K.function(inputs=[self.model.input, action_gdts], outputs=[], updates=[tf.train.AdamOptimizer(self.lr).apply_gradients(grads)])
-        # return K.function([self.model.input, action_gdts], [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)])
-        # return K.function([self.model.input, action_gdts], [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)][1:])
 
     def save(self, path):
         self.model.save_weights(path + "_actor.h5")
@@ -187,11 +152,7 @@ class Critic:
     def train_on_batch(self, states, actions, critic_target):
         """ Train the critic network on batch of sampled experience
         """
-
-        print("---aa")
-        print(states.shape)
-        print
-
+        import pdb; pdb.set_trace()
         return self.model.train_on_batch([states, actions], critic_target)
 
     def transfer_weights(self):
