@@ -26,28 +26,6 @@ class MidiVectorMapper:
         """
         song = pretty_midi.PrettyMIDI(resolution=384, initial_tempo=300)
         piano = pretty_midi.Instrument(program=0)
-<<<<<<< HEAD
-
-
-        for event_vec in seq:
-            if event_vec[1] > 0.5:
-                piano.notes.append(
-                    pretty_midi.Note(
-                        start=event_vec[0],
-                        pitch=int(event_vec[2]),
-                        velocity=int(event_vec[3]),
-                        end=event_vec[0]+event_vec[4]
-                    )
-                )
-            else:
-                piano.control_changes.append(
-                    pretty_midi.ControlChange(
-                        time=event_vec[0],
-                        value=int(event_vec[5]),
-                        number=self.control_change_categories[np.argmax(event_vec[6:])]
-                    )
-                )
-=======
         for i, event_vec in enumerate(seq):
             if event_vec[4] > 0.5:  # end token
                 break
@@ -56,7 +34,6 @@ class MidiVectorMapper:
                 piano.notes.append(self.action2note(event_vec, start))
             else:  # no_sound placeholder
                 continue
->>>>>>> master
         song.instruments.append(piano)
         return song
 
@@ -75,16 +52,7 @@ class MidiVectorMapper:
     def action2note(self, event_vec, start):
         """Map a single action of the generstor to a note
         """
-<<<<<<< HEAD
-
-        print("--")
-        print(event_vec)
-        print("--")
-
-        if event_vec[1] > 0.5:
-=======
         if event_vec[0] > 0.5 and event_vec[4] < 0.5:
->>>>>>> master
             return pretty_midi.Note(
                 start=start,
                 pitch=int(event_vec[1]),

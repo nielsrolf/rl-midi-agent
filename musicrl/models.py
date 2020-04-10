@@ -34,11 +34,14 @@ class Actor:
         self.target_model = self.network()
         self.adam_optimizer = self.optimizer()
 
+
+
     def network(self):
         """ Actor Network for Policy function Approximation, using a tanh
         activation for continuous control. We add parameter noise to encourage
         exploration, and balance it with Layer Normalization.
         """
+
         inp = Input((self.env_dim))
         #
         x = Dense(256, activation='relu')(inp)
@@ -56,7 +59,10 @@ class Actor:
     def predict(self, state):
         """ Action prediction
         """
-        return self.model.predict(np.expand_dims(state, axis=0))
+        ptin("aa")
+
+        print(state.shape)
+        return self.model.predict(  state )
 
     def target_predict(self, inp):
         """ Action prediction (target network)
@@ -82,7 +88,22 @@ class Actor:
         action_gdts = K.placeholder(shape=(None, self.act_dim))
         params_grad = tf.gradients(self.model.output, self.model.trainable_weights, -action_gdts)
         grads = zip(params_grad, self.model.trainable_weights)
-        return K.function([self.model.input, action_gdts], [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)])
+
+
+        print("++")
+        print(action_gdts.shape)
+        print(len(params_grad))
+        print(grads)
+
+        print("++")
+        print("++")
+
+        return K.function(inputs=[self.model.input, action_gdts], outputs=[K.constant(1)],   updates=[tf.train.AdamOptimizer(self.lr).apply_gradients(grads)])
+
+        #return K.function(inputs=[self.model.input, action_gdts], outputs=[],   updates=[tf.train.AdamOptimizer(self.lr).apply_gradients(grads)][1:])
+        #return K.function(inputs=[self.model.input, action_gdts], outputs=[], updates=[tf.train.AdamOptimizer(self.lr).apply_gradients(grads)])
+        #return K.function([self.model.input, action_gdts], [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)])
+        #return K.function([self.model.input, action_gdts], [tf.train.AdamOptimizer(self.lr).apply_gradients(grads)][1:])
 
     def save(self, path):
         self.model.save_weights(path + '_actor.h5')
@@ -113,8 +134,8 @@ class Critic:
     def network(self):
         """ Assemble Critic network to predict q-values
         """
-        state = Input((self.env_dim))
-        action = Input((self.act_dim,))
+        state = Input((self.env_dim),name='state_input')
+        action = Input((self.act_dim,),name='action_input')
         x = Dense(256, activation='relu')(state)
         x = concatenate([Flatten()(x), action])
         x = Dense(128, activation='relu')(x)
@@ -134,6 +155,11 @@ class Critic:
     def train_on_batch(self, states, actions, critic_target):
         """ Train the critic network on batch of sampled experience
         """
+
+        print("---aa")
+        print(states.shape)
+        print
+
         return self.model.train_on_batch([states, actions], critic_target)
 
     def transfer_weights(self):

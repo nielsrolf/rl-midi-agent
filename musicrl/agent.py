@@ -6,9 +6,15 @@ from musicrl.midi2vec import MidiVectorMapper
 
 from musicrl.utils.memory_buffer import MemoryBuffer
 
+
+
+
 class DDPG:
     """ Deep Deterministic Policy Gradient (DDPG) Helper Class
     """
+
+
+
 
     def __init__(self, act_dim, env_dim, act_range, k, buffer_size = 20000, gamma = 0.99, lr = 0.00005, tau = 0.001):
         """ Initialization
@@ -16,7 +22,8 @@ class DDPG:
         # Environment and A2C parameters
         self.act_dim = act_dim
         self.act_range = act_range
-        self.env_dim = (k,) + env_dim
+        #self.env_dim = (k,) + env_dim
+        self.env_dim =  env_dim
         self.gamma = gamma
         self.lr = lr
         # Create actor and critic networks
@@ -57,6 +64,7 @@ class DDPG:
         actions = self.actor.model.predict(states)
         grads = self.critic.gradients(states, actions)
         # Train actor
+        print("here")
         self.actor.train(states, actions, np.array(grads).reshape((-1, self.act_dim)))
         # Transfer weights to target networks at rate Tau
         self.actor.transfer_weights()
