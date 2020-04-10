@@ -9,7 +9,7 @@ from musicrl.data import RandomMidiDataGenerator
 from musicrl import mel_lstm, seq_lstm
 
 
-filepaths = list(glob('maestro-v2.0.0/2008/**.midi'))[:5]
+filepaths = list(glob("maestro-v2.0.0/2008/**.midi"))[:5]
 real_midis = [pretty_midi.PrettyMIDI(i) for i in filepaths]
 mapper = MidiVectorMapper(real_midis)
 
@@ -28,7 +28,9 @@ class RandomMidiDataGeneratorTest(unittest.TestCase):
         self.assertTrue(got_a_batch)
 
     def test_with_seq_lstm(self):
-        generator = RandomMidiDataGenerator(real_midis, seq_lstm.make_preprocessor(mapper), mapper, 2)
+        generator = RandomMidiDataGenerator(
+            real_midis, seq_lstm.make_preprocessor(mapper), mapper, 2
+        )
 
         got_a_batch = False
         for x, y in generator():
@@ -38,8 +40,7 @@ class RandomMidiDataGeneratorTest(unittest.TestCase):
             if generator.epochs >= 1:
                 break
         self.assertTrue(got_a_batch)
-        
-    
+
+
 if __name__ == "__main__":
     unittest.main()
-    
