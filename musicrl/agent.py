@@ -13,7 +13,6 @@ class DDPG:
         act_dim,
         env_dim,
         act_range,
-        k,
         gamma=0.99,
         lr=0.00005,
         tau=0.001,
@@ -23,7 +22,6 @@ class DDPG:
         # Environment and A2C parameters
         self.act_dim = act_dim
         self.act_range = act_range
-        # self.env_dim = (k,) + env_dim
         self.env_dim = env_dim
         self.gamma = gamma
         self.lr = lr

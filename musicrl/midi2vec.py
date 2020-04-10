@@ -101,6 +101,9 @@ class PostProcessor:
         pred[:, [1, 2, 3]] += self.mean_notes
         return repair_generated_seq(pred)
 
+    def reverse(self, real_seqs):
+        pass
+
 
 def generate_random_sequence(postprocess, num_events=15000):
     """Generate some Gaussian noise, remove end tokens and postprocess it
