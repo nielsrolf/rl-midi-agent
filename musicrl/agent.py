@@ -7,23 +7,28 @@ from musicrl.midi2vec import MidiVectorMapper
 from musicrl.utils.memory_buffer import MemoryBuffer
 
 
-
-
 class DDPG:
     """ Deep Deterministic Policy Gradient (DDPG) Helper Class
     """
 
-
-
-
-    def __init__(self, act_dim, env_dim, act_range, k, buffer_size = 20000, gamma = 0.99, lr = 0.00005, tau = 0.001):
+    def __init__(
+        self,
+        act_dim,
+        env_dim,
+        act_range,
+        k,
+        buffer_size=20000,
+        gamma=0.99,
+        lr=0.00005,
+        tau=0.001,
+    ):
         """ Initialization
         """
         # Environment and A2C parameters
         self.act_dim = act_dim
         self.act_range = act_range
-        #self.env_dim = (k,) + env_dim
-        self.env_dim =  env_dim
+        # self.env_dim = (k,) + env_dim
+        self.env_dim = env_dim
         self.gamma = gamma
         self.lr = lr
         # Create actor and critic networks
@@ -74,7 +79,9 @@ class DDPG:
         results = []
 
         # First, gather experience
-        tqdm_e = tqdm(range(args.nb_episodes), desc='Score', leave=True, unit=" episodes")
+        tqdm_e = tqdm(
+            range(args.nb_episodes), desc="Score", leave=True, unit=" episodes"
+        )
         for e in tqdm_e:
 
             # Reset episode
@@ -84,19 +91,24 @@ class DDPG:
             noise = OrnsteinUhlenbeckProcess(size=self.act_dim)
 
             while not done:
-                if args.render: env.render()
+                if args.render:
+                    env.render()
                 # Actor picks an action (following the deterministic policy)
                 a = self.policy_action(old_state)
                 # Clip continuous values to be valid w.r.t. environment
-                a = np.clip(a+noise.generate(time), -self.act_range, self.act_range)
+                a = np.clip(a + noise.generate(time), -self.act_range, self.act_range)
                 # Retrieve new state, reward, and whether the state is terminal
                 new_state, r, done, _ = env.step(a)
                 # Add outputs to memory buffer
                 self.memorize(old_state, a, r, done, new_state)
                 # Sample experience from buffer
-                states, actions, rewards, dones, new_states, _ = self.sample_batch(args.batch_size)
+                states, actions, rewards, dones, new_states, _ = self.sample_batch(
+                    args.batch_size
+                )
                 # Predict target q-values using target networks
-                q_values = self.critic.target_predict([new_states, self.actor.target_predict(new_states)])
+                q_values = self.critic.target_predict(
+                    [new_states, self.actor.target_predict(new_states)]
+                )
                 # Compute critic target
                 critic_target = self.bellman(rewards, q_values, dones)
                 # Train both networks on sampled batch, update target networks
@@ -107,12 +119,12 @@ class DDPG:
                 time += 1
 
             # Gather stats every episode for plotting
-            if(args.gather_stats):
+            if args.gather_stats:
                 mean, stdev = gather_stats(self, env)
                 results.append([e, mean, stdev])
 
             # Export results for Tensorboard
-            score = tfSummary('score', cumul_reward)
+            score = tfSummary("score", cumul_reward)
             summary_writer.add_summary(score, global_step=e)
             summary_writer.flush()
             # Display score
@@ -122,14 +134,13 @@ class DDPG:
         return results
 
     def save_weights(self, path):
-        path += '_LR_{}'.format(self.lr)
+        path += "_LR_{}".format(self.lr)
         self.actor.save(path)
         self.critic.save(path)
 
     def load_weights(self, path_actor, path_critic):
         self.critic.load_weights(path_critic)
         self.actor.load_weights(path_actor)
-
 
 
 class Memory:

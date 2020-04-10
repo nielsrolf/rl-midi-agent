@@ -27,9 +27,7 @@ class RandomSeqGenerator:
             `[1]    2097 bus error  /Users/nielswarncke/opt/anaconda3/envs/midi-rl/bin/python  --default --client`
     """
 
-    def __init__(
-        self, real_midis, mapper, batch_size, max_num_timeframes=8000
-    ):
+    def __init__(self, real_midis, mapper, batch_size, max_num_timeframes=8000):
         self.real_midis = real_midis
         self.batch_size = batch_size
         self.mapper = mapper
@@ -73,9 +71,7 @@ class RandomSeqGenerator:
         ]
         min_length = min([seq.shape[0] for seq in real_seqs + fake_seqs])
         min_length = min(min_length, self.max_num_timeframes)
-        x = np.array(
-            [seq[:min_length] for seq in real_seqs + fake_seqs]
-        )
+        x = np.array([seq[:min_length] for seq in real_seqs + fake_seqs])
         y = np.array(
             [REAL] * (self.batch_size // 2) + [GEN] * (self.batch_size // 2)
         ).reshape((-1, 1))
@@ -158,4 +154,3 @@ class RandomMidiDataGenerator(RandomSeqGenerator):
         seqs, y = super().compute_batch()
         x = self._preprocess_batch_of_seqs(seqs)
         return x, y
-
