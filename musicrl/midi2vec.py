@@ -21,6 +21,15 @@ class MidiVectorMapper:
         ]
         self.no_sound = np.zeros(5)
 
+    def is_done(self, seqs):
+        """Returns a np.array of booleans, True if the corresponding sequence
+        is done, False otherwise
+        
+        Arguments:
+            seqs {np.array} -- sequence batch
+        """
+        return seqs[:,4] > 0.5
+
     def vec2midi(self, seq):
         """Map a vector to a PrettyMIDI object with a single piano
         """
