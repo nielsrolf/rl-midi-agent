@@ -1,4 +1,3 @@
-
 from matplotlib import pyplot as plt
 
 from tensorflow.keras.models import Sequential
@@ -11,12 +10,12 @@ from musicrl.render import midi2mel, wav2mel
 
 def get_model():
     model = Sequential()
-    model.add(LSTM(128,
-            input_shape=(None, 128),
-            return_sequences=True)) # 
-    model.add(TimeDistributed(Dense(128, activation='sigmoid')))
-    model.add(TimeDistributed(Dense(1, activation='sigmoid')))
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=[metrics.binary_accuracy])
+    model.add(LSTM(128, input_shape=(None, 128), return_sequences=True))  #
+    model.add(TimeDistributed(Dense(128, activation="sigmoid")))
+    model.add(TimeDistributed(Dense(1, activation="sigmoid")))
+    model.compile(
+        loss="binary_crossentropy", optimizer="adam", metrics=[metrics.binary_accuracy]
+    )
     return model
 
 
@@ -25,6 +24,7 @@ train like this:
 history = model.fit_generator(train_generator(), validation_data=test_generator(),
                               steps_per_epoch=1, epochs=10, validation_steps=1, validation_freq=1)
 """
+
 
 def preprocess(midi):
     """
@@ -36,7 +36,6 @@ def preprocess(midi):
     return midi2mel(midi).T
 
 
-
 def preprocess_wav(wav, rate=44100):
     """
     Gets:
@@ -44,20 +43,19 @@ def preprocess_wav(wav, rate=44100):
     Returns:
         np.array of shape (#time, #frequencies) of mel spectrograms
     """
-    return wav2mel(wav,  rate).T
+    return wav2mel(wav, rate).T
 
 
 def plot_history(history):
-    plt.figure(figsize=(12,4))
+    plt.figure(figsize=(12, 4))
     plt.subplot(121)
     plt.title("Loss")
-    plt.plot(history.history['loss'], label='Train')
-    plt.plot(history.history['val_loss'], label='Test')
+    plt.plot(history.history["loss"], label="Train")
+    plt.plot(history.history["val_loss"], label="Test")
     plt.legend()
     plt.subplot(122)
     plt.title("Accuracy")
-    plt.plot(history.history['val_binary_accuracy'], label='Train')
-    plt.plot(history.history['binary_accuracy'], label='Test')
+    plt.plot(history.history["val_binary_accuracy"], label="Train")
+    plt.plot(history.history["binary_accuracy"], label="Test")
     plt.legend()
     plt.show()
-

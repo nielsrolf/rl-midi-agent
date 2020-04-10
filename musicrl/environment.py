@@ -28,7 +28,15 @@ class MelEnvironment(gym.Env):
         N_TIMESTEPS: int: number of timesteps used to generate the observation
         MAX_NUM_ACTIONS: int: number of actions after which to end a trajectory
     """
-    def __init__(self, discriminator, preprocess_wav, mapper, N_TIMESTEPS=100, MAX_NUM_ACTIONS=10000):
+
+    def __init__(
+        self,
+        discriminator,
+        preprocess_wav,
+        mapper,
+        N_TIMESTEPS=100,
+        MAX_NUM_ACTIONS=10000,
+    ):
         super().__init__()
         # N_TIMESTEPS is used to define the observation:
         # This many timeframes of the spectrogram are fed
@@ -38,8 +46,9 @@ class MelEnvironment(gym.Env):
         # Define action and observation space
         # They must be gym.spaces objects
         self.action_space = gym.spaces.Box(0, np.inf, shape=(mapper.dims,))
-        self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf,
-                                           shape=(self.N_TIMESTEPS, 128), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(
+            low=-np.inf, high=np.inf, shape=(self.N_TIMESTEPS, 128), dtype=np.float32
+        )
         self.discriminator = discriminator
         self.preprocess_wav = preprocess_wav
         self.mapper = mapper
@@ -49,7 +58,7 @@ class MelEnvironment(gym.Env):
         self.current_midi = pretty_midi.PrettyMIDI(resolution=384, initial_tempo=300)
         self.current_midi.instruments.append(pretty_midi.Instrument(program=0))
         self.current_observation = np.zeros((self.N_TIMESTEPS, 128))
-     
+
     def _update_wav(self, action):
         self.current_seq.append(action)
         event = mapper.action2note(action)
@@ -61,14 +70,15 @@ class MelEnvironment(gym.Env):
             else:
                 self.current_midi.instruments[0].append_and_synthesize(event)
             return True
-        
-        
+
     def step(self, action):
         self._update_wav(action)
         preprocessed = self.preprocess_wav(self.current_wav, self.fr)[na]
         prediction = self.discriminator.predict_on_batch(preprocessed)
         observation = np.zeros((self.N_TIMESTEPS, 128))
-        observation[-min(self.N_TIMESTEPS, len(preprocessed[0])):] = preprocessed[0, -self.N_TIMESTEPS:]
+        observation[-min(self.N_TIMESTEPS, len(preprocessed[0])) :] = preprocessed[
+            0, -self.N_TIMESTEPS :
+        ]
         self.current_observation = observation
         self.current_prediction = prediction
         reward = prediction[0, -1, 0]
@@ -84,13 +94,13 @@ class MelEnvironment(gym.Env):
         self.current_observation = np.zeros((self.N_TIMESTEPS, 128))
         self.rewards = []
         return self.current_observation
-    
+
     @property
     def current_wav(self):
         return self.current_midi.instruments[0].synthesized
 
-    def render(self, mode='human'):
+    def render(self, mode="human"):
         plot_spectro(self.current_observation.T, "Current observation")
-    
-    def close (self):
+
+    def close(self):
         pass
