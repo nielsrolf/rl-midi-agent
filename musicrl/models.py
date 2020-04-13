@@ -53,6 +53,7 @@ class Actor:
         """
 
         inp = Input((self.env_dim))
+        
         #
         x = Dense(256, activation="relu")(inp)
         x = GaussianNoise(1.0)(x)
