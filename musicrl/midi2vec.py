@@ -28,7 +28,7 @@ class MidiVectorMapper:
         Arguments:
             seqs {np.array} -- sequence batch
         """
-        return seqs[:,4] > 0.5
+        return seqs[:, 4] > 0.5
 
     def vec2midi(self, seq):
         """Map a vector to a PrettyMIDI object with a single piano

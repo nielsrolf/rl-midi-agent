@@ -13,6 +13,7 @@ class DDPG:
         act_dim,
         env_dim,
         act_range,
+        batch_size,
         gamma=0.99,
         lr=0.00005,
         tau=0.001,
@@ -26,13 +27,21 @@ class DDPG:
         self.gamma = gamma
         self.lr = lr
         # Create actor and critic networks
-        self.critic = Critic(self.env_dim, act_dim, lr, tau)
-        self.actor = Actor(self.env_dim, act_dim, act_range, 0.1 * lr, tau, critic=self.critic.model)
+        self.critic = Critic(self.env_dim, act_dim, lr, tau, batch_size=batch_size)
+        self.actor = Actor(
+            self.env_dim,
+            act_dim,
+            act_range,
+            0.1 * lr,
+            tau,
+            critic=self.critic.model,
+            batch_size=batch_size,
+        )
 
     def policy_action(self, s):
         """ Use the actor to predict value
         """
-        return self.actor.predict(s) # NOTE removed [0]
+        return self.actor.predict(s)
 
     def bellman(self, rewards, q_values, dones):
         """ Use the Bellman Equation to compute the critic target
