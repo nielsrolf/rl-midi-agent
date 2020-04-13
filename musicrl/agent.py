@@ -38,6 +38,12 @@ class DDPG:
             batch_size=batch_size,
         )
 
+    def reset(self):
+        """Resets the model states - should happen before a new episode starts
+        """
+        self.agent.actor.train_model.reset()
+        self.critic.train_model.reset()
+
     def policy_action(self, s):
         """ Use the actor to predict value
         """
