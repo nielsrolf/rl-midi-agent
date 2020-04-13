@@ -45,6 +45,8 @@ class Actor:
 
 
     def network(self):
+        print(self.env_dim)
+        print("hola")
         """ Actor Network for Policy function Approximation, using a tanh
         activation for continuous control. We add parameter noise to encourage
         exploration, and balance it with Layer Normalization.
@@ -65,6 +67,9 @@ class Actor:
         out = Lambda(lambda i: i * self.act_range)(out)
         #
         return Model(inp, out)
+
+
+
 
     def predict(self, states):
         """ Action prediction

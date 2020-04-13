@@ -49,14 +49,15 @@ class DDPG:
         """ Update actor and critic networks from sampled experience
         """
         # Train critic
-        self.critic.train_on_batch(states, actions, critic_target)
+        critic_loss = self.critic.train_on_batch(states, actions, critic_target)
         # Q-Value Gradients under Current Policy
         actions = self.actor.predict(states)
         # Train actor
-        self.actor.train(states)
+        actor_loss = self.actor.train(states)
         # Transfer weights to target networks at rate Tau
         self.actor.transfer_weights()
         self.critic.transfer_weights()
+        return critic_loss, actor_loss
 
     def save_weights(self, path):
         path += "_LR_{}".format(self.lr)
